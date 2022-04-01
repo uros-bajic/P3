@@ -60,8 +60,8 @@ if __name__ == '__main__':
     # Importing from Standard Library
 
     from datetime import date
-
+    from settings import *
     d = date(1971, 10, 11)
     print(d)
     d_format = '%b %d, %Y'
-    print(d.strftime(d_format))
+    print(d.strftime(PREFERRED_DATE_FORMAT))
