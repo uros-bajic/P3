@@ -131,29 +131,26 @@ def palindrome(string):
 # Hint: use function randint from random package to generate a number to
 # be guessed in the game
 
-def input_incorrect(user_guess):
-    return (len(user_guess) > 1) or (not user_guess.isnumeric())
+# def input_incorrect(user_guess):
+#     return (len(user_guess) > 1) or (not user_guess.isnumeric())
 
 def guessing_game():
     from random import randint
-    num_to_guess = randint(1,9)
-    print("This is a guessing game. I'll 'think' of a number and you'll have max 3 attempts to guess what number it is")
+    cnt = 0
+    num = randint(1, 9)
 
-    attempt_cnt = 1
-    while attempt_cnt <= 3:
-        msg = "Guess a number (" + str(attempt_cnt) + ". attempt)\n"
-        guess = input(msg)
-        if input_incorrect(guess):
-            print("Incorrect input! Only single digit numbers are allowed")
+    while cnt < 3:
+        usernum = int(input('Guess a number from 1 to 9:\n'))
+        if (usernum < 1) or (usernum > 9):
+            print(f'Guessed number is out of range [1, 9].\nTrials left: {3-cnt}.\n')
             continue
-        if int(guess) == num_to_guess:
-            print("Congratulations! You've correctly guessed the number")
+        if usernum != num:
+            cnt += 1
+            print(f'Wrong guess, try again!\nTrials left: {3-cnt}.\n')
+        if usernum == num:
+            print(f'Well done! You guessed the number {num}.')
             return
-        attempt_cnt += 1
-        feedback = "Incorrect! You can try again" \
-            if attempt_cnt <= 3 \
-            else "Incorrect! More luck next time. If curious, the number was " + str(num_to_guess)
-        print(feedback)
+    print(f'More luck next time! Secret number was {num}.')
 
 
 if __name__ == '__main__':
