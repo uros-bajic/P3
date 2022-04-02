@@ -157,7 +157,6 @@ def guessing_game():
 
 
 if __name__ == '__main__':
-
     odd_or_even()
 
     factorial(7)
