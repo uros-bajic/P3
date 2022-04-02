@@ -131,8 +131,8 @@ def palindrome(string):
 # Hint: use function randint from random package to generate a number to
 # be guessed in the game
 
-# def input_incorrect(user_guess):
-#     return (len(user_guess) > 1) or (not user_guess.isnumeric())
+def input_incorrect(user_guess):
+    return (len(user_guess) > 1) or (not user_guess.isnumeric())
 
 def guessing_game():
     from random import randint
@@ -140,7 +140,11 @@ def guessing_game():
     num = randint(1, 9)
 
     while cnt < 3:
-        usernum = int(input('Guess a number from 1 to 9:\n'))
+        usernum = input('Guess a number from 1 to 9:\n')
+        if input_incorrect(usernum):
+            print(f'Input is incorrect. Please enter a number from 1 to 9.\nTrials left: {3 - cnt}.\n')
+            continue
+        usernum = int(usernum)
         if (usernum < 1) or (usernum > 9):
             print(f'Guessed number is out of range [1, 9].\nTrials left: {3-cnt}.\n')
             continue
