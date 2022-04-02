@@ -102,7 +102,6 @@ should be printed as a comma-separated sequence.
 
 
 if __name__ == '__main__':
-
     # Task 1:
     # a = [1, 1, 2, 3, 5, 8, 13, 21, 55, 89, 5, 10]
     # b = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
