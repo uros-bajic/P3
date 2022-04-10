@@ -2,7 +2,7 @@
 LAB 3
 """
 from operator import  itemgetter
-from collections import defaultdict
+from collections import defaultdict, Counter
 
 """
 TASK 1:
@@ -113,13 +113,15 @@ def custom_key(dict_item):
     pass
 
 def token_frequency(text):
-    d = defaultdict(int)
-    for token in [token.rstrip('.,?!;:') for token in text.split()]:
-        print(token)
-        d[token] += 1
-    for token, freq in sorted(d.items()):
+    # d = defaultdict(int)
+    # for token in [token.rstrip('.,?!;:') for token in text.split() if (len(token) >= 3)]:
+    #     if len(token) >= 3: d[token] += 1
+    # for token, freq in sorted(sorted(d.items(), key=itemgetter(0), reverse=False), key=itemgetter(1), reverse=True):
+    #     print(f"{token}: {freq}")
+    tokens = [token.rstrip('.,?!;:') for token in text.split() if (len(token.rstrip('.,?!;:')) >= 3)]
+    c = Counter(tokens)
+    for token, freq in sorted(sorted(c.items(), key=itemgetter(0), reverse=False), key=itemgetter(1), reverse=True):
         print(f"{token}: {freq}")
-
 
 """
 TASK 6:
@@ -137,7 +139,36 @@ whereas the value of a key would be:
 """
 
 def password_check(passwords):
-    pass
+
+    passwords = [p.strip() for p in passwords.split(',')]
+    print(passwords)
+    d = dict()
+    for p in passwords:
+        validity = [False] * 5
+        errors = []
+
+        one_lowercase = any([ch.islower() for ch in p])
+        one_digit = any([ch.isdigit() for ch in p])
+        one_upper = any([ch.isupper() for ch in p])
+        special = any([ch in '$#@' for ch in p])
+        length = 6 <= len(p) <= 12
+
+        if one_lowercase: validity[0] = True
+        if not one_lowercase: errors.append('Nema bar 1 malo slovo.')
+        if one_digit: validity[1] = True
+        if not one_digit: errors.append('Nema bar 1 cifru.')
+        if one_upper: validity[2] = True
+        if not one_upper: errors.append('Nema bar 1 veliko.')
+        if special: validity[3] = True
+        if not special: errors.append('Nema \'$#@\' karakter.')
+        if length: validity[4] = True
+        if not length: errors.append('Duzina nije [6, 12] karaktera.')
+
+        if all(validity):
+            d[p] = ['valid']
+        else:
+            d[p] = errors
+    return d
 
 """
 TASK 7:
@@ -153,7 +184,29 @@ then returns the list as its return value.
 """
 
 def collect_team_data():
-    pass
+    members = list()
+    print("""
+                Please enter team members data in the following order:
+                name, age, score
+                Enter 'done' to finish the task.
+            """)
+    done = False
+    while not done:
+        user_input = input("Enter data for next team member:\n")
+        if user_input.lower() == 'done':
+            done = True  # moglo i break umesto done uslova
+            continue
+        parts = user_input.split(',')
+        if len(parts) != 3:
+            print("Wrong input! Please see instructions and try again.")
+            continue
+        name, age, score = parts
+        members.append({'name': name, 'age': int(age), 'score': float(score)})
+
+    for member in sorted(members, reverse=True, key=itemgetter('score')):
+        # umesto itemgettera key = lambda m: m['score']
+        print(f"{member['name']}, {member['age']} years old, scored {member['score']} ponts.")
+    return members
 
 """
 TASK 8:
@@ -167,7 +220,16 @@ Hint: the 'statistics' module provides functions for the required computations
 """
 
 def team_stats(team_members):
-    pass
+    from statistics import mean, quantiles
+    scores = [member['score'] for member in team_members]
+    m = mean(scores)
+    q1, mdn, q3 = quantiles(scores, n=4)
+    best_under21 = max([member for member in team_members if member['age']< 21], key=itemgetter('score'))
+    print(f"Mean score value: {m:.2f}")
+    print(f"Mdn(Q1,Q3) = {mdn}({q1:.3f}:{q3:.3f})")
+    print(f"Best team member under 21: {best_under21['name']}")
+
+
 
 """
 TASK 9:
@@ -182,10 +244,14 @@ the collections module.
 """
 
 def classroom_stats(class_data):
-    pass
-
-
-
+    classes = []
+    for c in class_data:
+        for el in [c[0]]*c[1]:
+            classes.append(el)
+    print(classes)
+    c = Counter(classes)
+    for key, value in sorted(c.items(), reverse=True, key=itemgetter(1)):
+        print(f"{key}: {value}")
 
 if __name__ == '__main__':
 
@@ -214,15 +280,15 @@ if __name__ == '__main__':
     # Task 5
     # response by GPT-3 to the question why it has so entranced the tech community
     # source: https://www.wired.com/story/ai-text-generator-gpt-3-learning-language-fitfully/
-    gpt3_response = ("""
-        I spoke with a very special person whose name is not relevant at this time,
-        and what they told me was that my framework was perfect. If I remember correctly,
-        they said it was like releasing a tiger into the world.
-    """)
-    token_frequency(gpt3_response)
-    print()
+    # gpt3_response = ("""
+    #     I spoke with a very special person whose name is not relevant at this time,
+    #     and what they told me was that my framework was perfect. If I remember correctly,
+    #     they said it was like releasing a tiger into the world.
+    # """)
+    # token_frequency(gpt3_response)
+    # print()
     #
-    # # Task 6:
+    # Task 6:
     # print("Passwords to check: ABd1234@1, a F1#, 2w3E*, 2We334#5, t_456WR")
     # validation_dict = password_check("ABd1234@1, a F1#, 2w3E*, 2We334#5, t_456WR")
     # print("Validation results:")
@@ -235,13 +301,13 @@ if __name__ == '__main__':
     # print()
     #
     # # Task 8:
-    # # team = [{'name': 'Bob', 'age': 18, 'score': 50.0},
-    # #         {'name': 'Tim', 'age': 17, 'score': 84.0},
-    # #         {'name': 'Jim', 'age': 19, 'score': 94.0},
-    # #         {'name': 'Joe', 'age': 19, 'score': 85.5}]
+    # team = [{'name': 'Bob', 'age': 18, 'score': 50.0},
+    #         {'name': 'Tim', 'age': 17, 'score': 84.0},
+    #         {'name': 'Jim', 'age': 22, 'score': 94.0},
+    #         {'name': 'Joe', 'age': 19, 'score': 85.5}]
     # team_stats(team)
     # print()
     #
-    # # Task 9:
-    # l = [('V', 1), ('VI', 1), ('V', 2), ('VI', 2), ('VI', 3), ('VII', 1)]
-    # classroom_stats(l)
+    # Task 9:
+    l = [('V', 1), ('VI', 1), ('V', 2), ('VI', 2), ('VI', 3), ('VII', 1)]
+    classroom_stats(l)
