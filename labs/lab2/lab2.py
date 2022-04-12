@@ -236,4 +236,5 @@ if __name__ == '__main__':
     #
     # Task 7:
 
+
     numbers_with_all_even_digits()
