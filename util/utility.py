@@ -36,7 +36,7 @@ def get_project_dir():
     """Returns the Path object corresponding to the project root directory.
     """
 
-    return PROJECT_DIR
+    return PROJECT_DIR # izlaz je objekat tipa path
 
 
 def get_data_dir():
@@ -44,7 +44,7 @@ def get_data_dir():
     (by convention located right under the project root directory).
     """
 
-    data_dir = get_project_dir() / 'data'
+    data_dir = get_project_dir() / 'data' # pravljenje na putanji
     data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir
 

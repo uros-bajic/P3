@@ -34,8 +34,8 @@ class Song:
     def __init__(self, title, is_unplugged=False):
         self.title = title
         self.is_unplugged = is_unplugged
-        self.__n = 'kkk'                                    # 'private' field
-        self._n = 'lll'                                     # 'protected' field
+        # self.__n = 'kkk'                                    # 'private' field
+        # self._n = 'lll'                                     # 'protected' field
 
     # Properties: 'private' fields:
     #   @property
@@ -103,7 +103,7 @@ class Song:
         return cls(t, u) # cls je implicitni poziv konstruktora
 
 
-class SongEncoder(json.JSONEncoder):
+class SongEncoder(json.JSONEncoder):  # parsiranje u json moze i pomocu klase da se radi (JSONEncoder)
     """JSON encoder for Song objects (cls= parameter in json.dumps()).
     """
 
@@ -112,6 +112,7 @@ class SongEncoder(json.JSONEncoder):
 
         pass
         # can simply return song_py_to_json(song), to avoid code duplication
+        return song_py_to_json(song)
 
 
 def song_py_to_json(song):
@@ -119,11 +120,20 @@ def song_py_to_json(song):
     """
 
     # recommendation: always use double quotes with JSON
+    if isinstance(song, Song):
+        return {"__Song__": song.__dict__}
+    raise TypeError('expected Song object')
 
 
 def song_json_to_py(song_json):
     """JSON decoder for Song objects (object_hook= parameter in json.loads()).
     """
+
+    if "__Song__" in song_json:
+        s = Song('')
+        s.__dict__.update(song_json["__Song__"])
+        return s
+    return song_json
 
 
 class Ballad(Song):
@@ -252,9 +262,9 @@ if __name__ == "__main__":
     imagine.is_unplugged = False
     print(imagine.is_unplugged)
     print()
-    print(imagine._n) # oko protected se ne buni
+    # print(imagine._n) # oko protected se ne buni
     # print(imagine.__n) # za ovo kao private se buni
-    print(imagine._Song__n) # za ovo se opet ne buni
+    # print(imagine._Song__n) # za ovo se opet ne buni
     print()
     # iako je navodno privatni ima fore da se provali
     # u Pythonu nista nije zagarantovao private ili
@@ -333,7 +343,19 @@ if __name__ == "__main__":
 
     # Demonstrate JSON encoding/decoding of Song objects
     # Single object
+    imagine_json = json.dumps(imagine, default=song_py_to_json, indent=4)
+    # imagine_json = json.dumps(imagine, cls=SongEncoder, indent=4) # ako radimo parsiranje preko klase
+    print(imagine_json)
+    imagine_py = json.loads(imagine_json, object_hook=song_json_to_py)
+    print(imagine_py)
     print()
 
     # List of objects
+    from testdata.songs import *
+
+    songs = [imagine, across_the_universe, happiness_is_a_warm_gun, love]
+    songs_json = json.dumps(songs, default=song_py_to_json, indent=4)
+    print(songs_json)
+    songs_py = json.loads(songs_json, object_hook=song_json_to_py)
+    print("; ".join([str(s) for s in songs_py]))
     print()
