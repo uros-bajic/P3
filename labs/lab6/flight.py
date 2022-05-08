@@ -115,7 +115,7 @@ class Flight:
             # uzima u obzir izvedene klase a type ne
             print(f"Error! Wrong input expected a Passenger object, got ({type(p)}) object.")
             return
-        if (p not in self.passengers) and p.checked_in:
+        if (p not in self.passengers):
             self.passengers.append(p)
             p.airfare = price
             print(f"Successfully added: {p.name}.")
@@ -160,6 +160,39 @@ class Flight:
             return next_passenger
         raise StopIteration
 
+    @classmethod
+    def from_dict(cls, flight_dict):
+        # fl_num, origin, destination, departure, operator
+        def value_or_none(key):
+            return flight_dict[key] if key in flight_dict.keys() else None
+
+        try:
+            return cls(flight_dict['fl_num'], flight_dict['departure'],
+                       (flight_dict['origin'], flight_dict['destination']),
+                       flight_dict['operator'])
+        except KeyError as err:
+            stderr.write(f"The following key caused an error: {err}\n")
+            stderr.write("Creating flight object out of available data.\n")
+
+            return cls(value_or_none('fl_num'), value_or_none('departure'),
+                       (value_or_none('origin'), value_or_none('destination')),
+                       value_or_none('operator'))
+
+    def not_checkedin_generator(self):
+        counter = 0
+        for p in self.passengers:
+            if not p.checked_in:
+                yield p
+                counter += 1
+        print(f"Flight {self.flight_num} waiting for {counter} passenger to check in.")
+
+    def candidates_for_upgrade_generator(self, threshold):
+        candidates = []
+        for p in self.passengers:
+            if isinstance(p, EconomyPassenger) and p.airfare >= threshold and p.checked_in:
+                candidates.append(p)
+        for p in sorted(candidates, key = lambda c: c.airfare, reverse=True):
+            yield p
 
 if __name__ == '__main__':
 
@@ -170,51 +203,50 @@ if __name__ == '__main__':
     lh992 = Flight('LH992', '2022-06-25 12:20', 'Belgrade > Frankfurt', 'Lufthansa')
     print(lh992)
     print()
-    #
-    # lh1514_dict = {'fl_num':'lh1514',
-    #                'departure': '2021-12-30 16:30',
-    #                'operator': 'Lufthansa',
-    #                'origin': 'Paris',
-    #                'destination': 'Berlin'}
-    #
-    # lh1514 = Flight.from_dict(lh1514_dict)
-    # print(lh1514)
-    # print()
-    #
-    #
-    # jim = EconomyPassenger("Jim Jonas", 'UK', '123456')
-    # bill = EconomyPassenger("Billy Stone", 'USA', "917253", is_covid_safe=True)
-    # dona = EconomyPassenger("Dona Stone", 'Australia', "917251", is_covid_safe=True)
-    # kate = BusinessPassenger(name="Kate Fox", country='Canada', passport="114252", is_covid_safe=True)
-    # bob = BusinessPassenger(name="Bob Smith", country='UK', passport="123456", checked_in=True)
-    #
-    # passengers = [jim, bill, dona, kate, bob]
-    # airfares = [450, 950, 1500, 1000, 475]
-    # for p, fare  in zip(passengers, airfares):
-    #     lh992.add_passenger(p, fare)
-    #
+
+    lh1514_dict = {'fl_num': 'lh1514',
+                   'departure': '2022-12-30 16:30',
+                   'operator': 'Lufthansa',
+                   'origin': 'Paris',
+                   'destination': 'Berlin'}
+
+    lh1514 = Flight.from_dict(lh1514_dict)
+    print(lh1514)
+    print()
+
+    jim = EconomyPassenger("Jim Jonas", 'UK', '123456')
+    bill = EconomyPassenger("Billy Stone", 'USA', "917253", covid_safe=True)
+    dona = EconomyPassenger("Dona Stone", 'Australia', "917251", covid_safe=True)
+    kate = BusinessPassenger(name="Kate Fox", country='Canada', passport="114252", covid_safe=True)
+    bob = BusinessPassenger(name="Bob Smith", country='UK', passport="123459", checked_in=True)
+
+    passengers = [jim, bill, dona, kate, bob]
+    airfares = [450, 950, 1500, 1000, 475]
+    for p, fare  in zip(passengers, airfares):
+        lh992.add_passenger(p, fare)
+
     # print(f"\nAfter adding passengers to flight {lh992.flight_num}:\n")
     # print(lh992)
     # print()
-    #
+
     # print("Last call to passengers who have not yet checked in!")
     # for passenger in lh992.not_checkedin_generator():
     #     print(passenger)
-    #
-    # # check in some economy class passengers to be able to test the next method
-    # dona.checked_in = True
-    # bill.checked_in = True
-    #
+
+    # check in some economy class passengers to be able to test the next method
+    dona.checked_in = True
+    bill.checked_in = True
+
     # print()
     # print("Passengers offered an upgrade opportunity:")
     # for ind, passenger in enumerate(lh992.candidates_for_upgrade_generator(500)):
     #     print(f"{ind+1}. {passenger}")
     #
-    # print()
-    # print("Candidates for upgrade to business class:")
-    # g = lh992.candidates_for_upgrade_generator(500)
-    # try:
-    #     while True:
-    #         print(next(g))
-    # except StopIteration:
-    #     print("--- end of candidates list ---")
+    print()
+    print("Candidates for upgrade to business class:")
+    g = lh992.candidates_for_upgrade_generator(500)
+    try:
+        while True:
+            print(next(g))
+    except StopIteration:
+        print("--- end of candidates list ---")
